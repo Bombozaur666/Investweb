@@ -75,8 +75,17 @@ WSGI_APPLICATION = 'investweb.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+
+        'NAME': 'investweb',
+
+        'USER': 'investweb',
+
+        'PASSWORD': 'z1eyj5E#5A@M#V21Xv9D4Yg$kGVcfXR2K#unterJFVACYVdpydGkgN979GCA',
+
+        'HOST': '127.0.0.1',
+
+        'PORT': '5432',
     }
 }
 
