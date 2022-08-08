@@ -28,15 +28,20 @@ class Article(models.Model):
         ('ENG', 'english'),
         ('DE', 'german')
     )
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255,
+                             null=False,
+                             blank=False)
     slug = models.SlugField(max_length=255,
                             unique_for_date='publish')
 
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
-                               related_name='articles_posts')
+                               related_name='articles_posts',
+                               null=False,
+                               blank=False)
 
-    body = models.TextField()
+    body = models.TextField(null=False,
+                            blank=False)
 
     publish = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
@@ -44,10 +49,15 @@ class Article(models.Model):
 
     status = models.CharField(max_length=10,
                               choices=STATUS_CHOICES,
-                              default='draft')
+                              default='draft',
+                              null=False,
+                              blank=False
+                              )
     language = models.CharField(max_length=15,
                                 choices=LANGUAGE_CHOICES,
-                                default='ENG')
+                                default='ENG',
+                                null=False,
+                                blank=False)
 
     objects = ArticleManager()
 
