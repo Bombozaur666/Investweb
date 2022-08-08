@@ -4,12 +4,6 @@ from django.contrib.auth.models import User
 
 
 # Create your models here.
-
-class Published(models.Manager):
-    def published(self):
-        return super(Published, self).get_queryset().filter(status='published')
-
-
 class ArticleManager(models.Manager):
     def published(self):
         return self.get_queryset().filter(status='published')
