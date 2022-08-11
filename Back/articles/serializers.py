@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Article
+from .models import Article, Comment
 from taggit.serializers import (TagListSerializerField,
                                 TaggitSerializer)
 
@@ -17,3 +17,15 @@ class ArticleSerializer(TaggitSerializer, serializers.ModelSerializer):
         model = Article
         fields = ['id', 'title', 'author', 'body', 'status', 'language', 'tags']
         read_only_fields = ['slug', 'publish', 'created', 'updated']
+
+
+class BasicArticleSerializer(TaggitSerializer, serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = ['id', 'title']
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'article', 'user', 'body', 'created', 'updated', 'active']
