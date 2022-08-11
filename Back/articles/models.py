@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.urls import reverse
+from taggit.managers import TaggableManager
 
 
 # Create your models here.
@@ -59,6 +61,9 @@ class Article(models.Model):
                                 null=False,
                                 blank=False)
 
+    #tags by taggit
+    tags = TaggableManager()
+    #add new functions to custom manager
     objects = ArticleManager()
 
     class Meta:
@@ -66,6 +71,7 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
+
 
 
 """ Maybe uncomment later. It will depend on requirements.
