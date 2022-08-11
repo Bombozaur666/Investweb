@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-from django.urls import reverse
 from taggit.managers import TaggableManager
 
 
@@ -46,7 +45,6 @@ class Article(models.Model):
     body = models.TextField(null=False,
                             blank=False)
 
-
     publish = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -63,9 +61,9 @@ class Article(models.Model):
                                 null=False,
                                 blank=False)
 
-    #tags by taggit
+    # tags by taggit
     tags = TaggableManager()
-    #add new functions to custom manager
+    # add new functions to custom manager
     objects = ArticleManager()
 
     class Meta:
@@ -73,6 +71,30 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Comment(models.Model):
+    article = models.ForeignKey(Article,
+                                on_delete=models.CASCADE,
+                                related_name='commented_posts',
+                                null=False,
+                                blank=False)
+    user = models.ForeignKey(User,
+                             on_delete=models.SET('DELETED USER'),
+                             related_name='user_comments',
+                             null=False,
+                             blank=False)
+    body = models.TextField(null=False,
+                            blank=False)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ('created',)
+
+    def __str__(self):
+        return 'Comment added by {} for post {}.'.format(self.user, self.article)
 
 
 """ Maybe uncomment later. It will depend on requirements.
