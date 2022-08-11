@@ -72,6 +72,9 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return '/articles/basicarticle/{}/'.format(self.id)
+
 
 class Comment(models.Model):
     article = models.ForeignKey(Article,
