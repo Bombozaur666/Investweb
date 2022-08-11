@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from .models import Article
-from taggit_serializer.serializers import (TagListSerializerField,
-                                           TaggitSerializer)
+from taggit.serializers import (TagListSerializerField,
+                                TaggitSerializer)
+
+
 # addon to work properly you must find
 # 'from django.utils.translation import ugettext_lazy as _'
 # and replace it with
