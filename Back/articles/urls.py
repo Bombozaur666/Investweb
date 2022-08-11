@@ -1,13 +1,11 @@
 app_name = 'articles'
+from .views import ArticleView, ArticlesListView
+from .feeds import LatestArticles
+from django.urls import path, include
 
-from django.urls import path
-from .views import ArticlesListView, ArticleView
-
-"""router = DefaultRouter()
-router.register('', )
-router.register('', )"""
 
 urlpatterns = [
-    path('', ArticlesListView.as_view(), name='articles_list'),
+    path('', ArticlesListView.as_view(),
     path('<int:pk>/', ArticleView.as_view(), name='article'),
+    path('feed/', LatestArticles(), name='articles_feed'),
 ]
