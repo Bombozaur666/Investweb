@@ -8,4 +8,3 @@ from .serializers import ArticleSerializer
 class BasicArticle(viewsets.ModelViewSet):
     queryset = Article.objects.filter(status='published')
     serializer_class = ArticleSerializer
-
