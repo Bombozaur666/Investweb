@@ -15,6 +15,7 @@ class ArticleView(APIView):
         comments_serializer = CommentSerializer(comments, many=True)
         return JsonResponse([article_serializer.data, comments_serializer.data], safe=False)
     def post(self, request, pk):
+        pass
         #add comment to specific article
 
 
@@ -28,5 +29,4 @@ class ArticlesListView(APIView):
         return JsonResponse(serializer.data, safe=False)
 
     def post(self, request):
-
         pass

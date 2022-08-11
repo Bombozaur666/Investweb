@@ -1,9 +1,7 @@
 app_name = 'articles'
-from django.contrib import admin
-from django.urls import path, include
-from .views import ArticlesListView, ArticleView
-from rest_framework.routers import DefaultRouter
 
+from django.urls import path
+from .views import ArticlesListView, ArticleView
 
 """router = DefaultRouter()
 router.register('', )
