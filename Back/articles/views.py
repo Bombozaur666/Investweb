@@ -61,3 +61,52 @@ class ArticlesListView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+class ArticleTypeView(APIView):
+    # get list of articles by type
+    def get(self, request, types):
+        if types == 'krypto':
+            articles = Article.objects.filter(type='K').all()
+            serializer = ArticleSerializer(articles, many=True)
+            return JsonResponse(serializer.data, safe=False)
+        elif types == 'securities':
+            articles = Article.objects.filter(type='S').all()
+            serializer = ArticleSerializer(articles, many=True)
+            return JsonResponse(serializer.data, safe=False)
+            pass
+        elif types == 'stock':
+            articles = Article.objects.filter(type='SM').all()
+            serializer = ArticleSerializer(articles, many=True)
+            return JsonResponse(serializer.data, safe=False)
+            pass
+        else:
+            return JsonResponse({'error': 'wrong type'}, safe=False)
+
+
+class ArticleTypeWithLangView(APIView):
+    # get list of articles by type and language
+    def get(self, request, types, lang):
+        lang = lang.upper()
+        if types == 'krypto':
+            articles = Article.objects.filter(type='K', language=lang).all()
+            serializer = ArticleSerializer(articles, many=True)
+            return JsonResponse(serializer.data, safe=False)
+        elif types == 'securities':
+            articles = Article.objects.filter(type='S', language=lang).all()
+            serializer = ArticleSerializer(articles, many=True)
+            return JsonResponse(serializer.data, safe=False)
+            pass
+        elif types == 'stock':
+            articles = Article.objects.filter(type='SM', language=lang).all()
+            serializer = ArticleSerializer(articles, many=True)
+            return JsonResponse(serializer.data, safe=False)
+            pass
+        else:
+            return JsonResponse({'error': 'wrong type'}, safe=False)
+
+
+class FiltersView(APIView):
+    def get(self):
+        # get list of articles by type
+        pass

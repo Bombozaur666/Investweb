@@ -30,6 +30,11 @@ class Article(models.Model):
         ('ENG', 'english'),
         ('DE', 'german')
     )
+    TYPES_CHOICES = (
+        ('K', 'krypto'),
+        ('S', 'securities'),
+        ('SM', 'stock market')
+    )
     title = models.CharField(max_length=255,
                              null=False,
                              blank=False)
@@ -60,6 +65,12 @@ class Article(models.Model):
                                 default='ENG',
                                 null=False,
                                 blank=False)
+    type = models.CharField(max_length=2,
+                             choices=TYPES_CHOICES,
+                             default='K',
+                             null=False,
+                             blank=False
+                             )
 
     # tags by taggit
     tags = TaggableManager()
@@ -98,19 +109,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return 'Comment added by {} for post {}.'.format(self.user, self.article)
-
-
-""" Maybe uncomment later. It will depend on requirements.
-class Articles(models.Model):
-    articlePL = models.ForeignKey(Article,
-                                  null=True,
-                                  on_delete=models.SET_NULL,
-                                  related_name='polish_article')
-    articleENG = models.ForeignKey(Article,
-                                   null=True,
-                                   on_delete=models.SET_NULL,
-                                   related_name='english_article')
-    articleDE = models.ForeignKey(Article,
-                                  null=True,
-                                  on_delete=models.SET_NULL,
-                                  related_name='german_article')"""

@@ -15,7 +15,7 @@ class ArticleSerializer(TaggitSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        fields = ['id', 'title', 'author', 'body', 'status', 'language', 'tags']
+        fields = ['id', 'title', 'author', 'body', 'type', 'status', 'language', 'tags']
         read_only_fields = ['slug', 'publish', 'created', 'updated']
 
 
