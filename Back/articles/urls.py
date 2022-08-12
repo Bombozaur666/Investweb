@@ -1,4 +1,5 @@
 app_name = 'articles'
+
 from .views import ArticleView, ArticlesListView, ArticleTypeView, FiltersView, ArticleTypeWithLangView, PolishArticlesView, EnglishArticlesView, GermanArticlesView
 from .feeds import LatestArticles
 from django.urls import path
