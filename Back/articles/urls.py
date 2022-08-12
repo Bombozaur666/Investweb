@@ -2,6 +2,7 @@ app_name = 'articles'
 
 from django.urls import path
 from .views import ArticlesListView, ArticleView
+from .feeds import LatestArticles
 
 
 urlpatterns = [
