@@ -1,6 +1,5 @@
 from django.http import JsonResponse
-from django.shortcuts import render
-from rest_framework import viewsets, status
+from rest_framework import  status
 from rest_framework.response import Response
 
 from .models import Article, Comment
@@ -104,6 +103,31 @@ class ArticleTypeWithLangView(APIView):
             pass
         else:
             return JsonResponse({'error': 'wrong type'}, safe=False)
+
+
+class PolishArticlesView(APIView):
+    def get(self, request):
+        # get list of articles in polish
+        articles = Article.objects.filter(language='PL').all()
+
+        serializer = ArticleSerializer(articles, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+
+class EnglishArticlesView(APIView):
+    def get(self, request):
+        # get list of articles in polish
+        articles = Article.objects.filter(language='ENG').all()
+        serializer = ArticleSerializer(articles, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+
+class GermanArticlesView(APIView):
+    def get(self, request):
+        # get list of articles in polish
+        articles = Article.objects.filter(language='GE').all()
+        serializer = ArticleSerializer(articles, many=True)
+        return JsonResponse(serializer.data, safe=False)
 
 
 class FiltersView(APIView):
