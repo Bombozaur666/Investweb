@@ -1,18 +1,20 @@
-app_name = 'articles'
-
-from .views import ArticleView, ArticlesListView, ArticleTypeView, FiltersView, ArticleTypeWithLangView, PolishArticlesView, EnglishArticlesView, GermanArticlesView
+from .views import *
 from .feeds import LatestArticles
 from django.urls import path
 
-urlpatterns = [
-    path('', ArticlesListView.as_view()),
-    path('<int:pk>/', ArticleView.as_view(), name='article'),
-    path('pl/', PolishArticlesView.as_view(), name='polish-articles'),
-    path('eng/', EnglishArticlesView.as_view(), name='english-articles'),
-    path('de/', GermanArticlesView.as_view(), name='german-articles'),
-    path('feed/', LatestArticles(), name='articles-feed'),
-    path('filters/', FiltersView.as_view(), name='filters-view'),
-    path('<str:types>/', ArticleTypeView.as_view(), name='type-view'),
-    path('<str:types>/<str:lang>/', ArticleTypeWithLangView.as_view(), name='type-view'),
 
+app_name = 'articles'
+
+
+urlpatterns = [
+    path('feed/', LatestArticles(), name='articles-feed'),
+    path('', ArticlesList.as_view()),
+    path('create/', ArticleCreate.as_view()),
+    path('<int:pk>/', ArticleDetail.as_view()),
+    path('<int:pk>/update/', ArticleUpdate.as_view()),
+    path('<int:pk>/create/', CreateComment.as_view()),
+    path('<int:pk>/unpublish/', UnpublishArticle.as_view()),
+    path('<int:pk>/deactivate/<int:commpk>/', DeactivateComment.as_view()),
+    path('search/', Search.as_view()),
+    path('similarposts/<int:pk>/', SimilarPostsByTags.as_view()),
 ]

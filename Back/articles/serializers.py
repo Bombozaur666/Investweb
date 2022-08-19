@@ -12,6 +12,7 @@ from taggit.serializers import (TagListSerializerField,
 
 class ArticleSerializer(TaggitSerializer, serializers.ModelSerializer):
     tags = TagListSerializerField()
+    required = False
 
     class Meta:
         model = Article
@@ -19,10 +20,10 @@ class ArticleSerializer(TaggitSerializer, serializers.ModelSerializer):
         read_only_fields = ['slug', 'publish', 'created', 'updated']
 
 
-class BasicArticleSerializer(TaggitSerializer, serializers.ModelSerializer):
+class BasicCommentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Article
-        fields = ['id', 'title']
+        model = Comment
+        fields = ['body', 'user']
 
 
 class CommentSerializer(serializers.ModelSerializer):

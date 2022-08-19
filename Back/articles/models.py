@@ -10,15 +10,6 @@ class ArticleManager(models.Manager):
     def published(self):
         return self.get_queryset().filter(status='published')
 
-    def published_pl(self):
-        return self.get_queryset().filter(status='published', language='PL')
-
-    def published_eng(self):
-        return self.get_queryset().filter(status='published', language='ENG')
-
-    def published_de(self):
-        return self.get_queryset().filter(status='published', language='DE')
-
 
 class Article(models.Model):
     STATUS_CHOICES = (
@@ -31,9 +22,11 @@ class Article(models.Model):
         ('DE', 'german')
     )
     TYPES_CHOICES = (
-        ('K', 'krypto'),
-        ('S', 'securities'),
-        ('SM', 'stock market')
+        ('ETF', 'ETF'),
+        ('IDX', 'indexes'),
+        ('FOR', 'forex'),
+        ('KRY', 'krypto'),
+        ('ACT', 'actions'),
     )
     title = models.CharField(max_length=255,
                              null=False,
@@ -65,9 +58,9 @@ class Article(models.Model):
                                 default='ENG',
                                 null=False,
                                 blank=False)
-    type = models.CharField(max_length=2,
+    type = models.CharField(max_length=3,
                              choices=TYPES_CHOICES,
-                             default='K',
+                             default='KRY',
                              null=False,
                              blank=False
                              )
@@ -109,3 +102,6 @@ class Comment(models.Model):
 
     def __str__(self):
         return 'Comment added by {} for post {}.'.format(self.user, self.article)
+
+    """def _tags(self):
+        return [t.name for t in self.tags.all()]"""

@@ -1,136 +1,93 @@
-from django.http import JsonResponse
-from rest_framework import  status
+from django.db.models import Count
+from django.http import JsonResponse, Http404
+from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Article, Comment
-from .serializers import ArticleSerializer, CommentSerializer
-from rest_framework.views import APIView
+from .serializers import ArticleSerializer, CommentSerializer, BasicCommentSerializer
+from rest_framework import generics, status
+from django.contrib.postgres.search import SearchVector
 
 
 # Create your views here.
-class ArticleView(APIView):
+
+class ArticlesList(generics.ListAPIView):
+    queryset = Article.objects.published().all()
+    serializer_class = ArticleSerializer
+    filterset_fields = ['language', 'type']
+
+
+class ArticleUpdate(generics.UpdateAPIView):
+    queryset = Article.objects.published().all()
+    serializer_class = ArticleSerializer
+    lookup_field = 'pk'
+
+
+class ArticleCreate(generics.CreateAPIView):
+    queryset = Article.objects.published().all()
+    serializer_class = ArticleSerializer
+
+
+class ArticleDetail(generics.GenericAPIView):
     def get(self, request, pk):
-        # return article with comments
-        article = Article.objects.published().filter(pk=pk)
+        article = get_list_or_404(Article, status='published', pk=pk)
         article_serializer = ArticleSerializer(article, many=True)
-        comments = Comment.objects.filter(article_id=pk)
+        comments = Comment.objects.filter(article_id=pk, active=True)
         comments_serializer = CommentSerializer(comments, many=True)
         return JsonResponse({'article': article_serializer.data,
                              'comments': comments_serializer.data},
                             safe=False)
 
-    def put(self, request, pk):
-        # add comment to specific article
-        serializer = CommentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
+class UnpublishArticle(generics.GenericAPIView):
     def post(self, request, pk):
-        # update article
-        if request.data['body']:
-            article = Article.objects.get(pk=pk)
-            article.body = request.data['body']
+        try:
+            article = Article.objects.published().get(pk=pk)
+            article.status = 'draft'
             article.save()
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-
-    def delete(self, request, pk):
-        # delete article and comments - CASCADE
-        Article.objects.get(pk=pk).delete()
-        return Response(status=status.HTTP_202_ACCEPTED)
+        except Article.DoesNotExist:
+            raise Http404
+        return Response(status=status.HTTP_200_OK)
 
 
-class ArticlesListView(APIView):
+class DeactivateComment(generics.GenericAPIView):
+    def get(self, request, pk, commpk):
+        try:
+            comm = Comment.objects.filter(pk=commpk).get()
+            comm.active = False
+            comm.save()
+        except Comment.DoesNotExist:
+            raise Http404
+        return Response(status=status.HTTP_200_OK)
 
-    def get(self, request):
-        # return all articles
-        articles = Article.objects.published().all()
-        serializer = ArticleSerializer(articles, many=True)
-        return JsonResponse(serializer.data, safe=False)
 
-    def put(self, request):
-        # create article
-        serializer = ArticleSerializer(data=request.data)
+class CreateComment(generics.CreateAPIView):
+    def put(self, request, pk):
+        serializer = BasicCommentSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            comm = Comment(article_id=pk, body=serializer.validated_data['body'],
+                           user=serializer.validated_data['user'])
+            comm.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class ArticleTypeView(APIView):
-    # get list of articles by type
-    def get(self, request, types):
-        if types == 'krypto':
-            articles = Article.objects.filter(type='K').all()
-            serializer = ArticleSerializer(articles, many=True)
-            return JsonResponse(serializer.data, safe=False)
-        elif types == 'securities':
-            articles = Article.objects.filter(type='S').all()
-            serializer = ArticleSerializer(articles, many=True)
-            return JsonResponse(serializer.data, safe=False)
-            pass
-        elif types == 'stock':
-            articles = Article.objects.filter(type='SM').all()
-            serializer = ArticleSerializer(articles, many=True)
-            return JsonResponse(serializer.data, safe=False)
-            pass
-        else:
-            return JsonResponse({'error': 'wrong type'}, safe=False)
-
-
-class ArticleTypeWithLangView(APIView):
-    # get list of articles by type and language
-    def get(self, request, types, lang):
-        lang = lang.upper()
-        if types == 'krypto':
-            articles = Article.objects.filter(type='K', language=lang).all()
-            serializer = ArticleSerializer(articles, many=True)
-            return JsonResponse(serializer.data, safe=False)
-        elif types == 'securities':
-            articles = Article.objects.filter(type='S', language=lang).all()
-            serializer = ArticleSerializer(articles, many=True)
-            return JsonResponse(serializer.data, safe=False)
-            pass
-        elif types == 'stock':
-            articles = Article.objects.filter(type='SM', language=lang).all()
-            serializer = ArticleSerializer(articles, many=True)
-            return JsonResponse(serializer.data, safe=False)
-            pass
-        else:
-            return JsonResponse({'error': 'wrong type'}, safe=False)
-
-
-class PolishArticlesView(APIView):
-    def get(self, request):
-        # get list of articles in polish
-        articles = Article.objects.filter(language='PL').all()
-
+class Search(generics.CreateAPIView):
+    def get(self, request, *args, **kwargs):
+        articles = Article.objects.annotate(search=SearchVector('title', 'body'),).filter(search=request.data['search'])
         serializer = ArticleSerializer(articles, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class EnglishArticlesView(APIView):
-    def get(self, request):
-        # get list of articles in polish
-        articles = Article.objects.filter(language='ENG').all()
-        serializer = ArticleSerializer(articles, many=True)
-        return JsonResponse(serializer.data, safe=False)
-
-
-class GermanArticlesView(APIView):
-    def get(self, request):
-        # get list of articles in polish
-        articles = Article.objects.filter(language='GE').all()
-        serializer = ArticleSerializer(articles, many=True)
-        return JsonResponse(serializer.data, safe=False)
-
-
-class FiltersView(APIView):
-    def get(self):
-        # get list of articles by type
-        pass
+class SimilarPostsByTags(APIView):
+    def get(self, request, pk, *args, **kwargs):
+        article = get_object_or_404(Article, status='published', pk=pk)
+        article_tag_ids = []
+        for tag in article.tags.all():
+            article_tag_ids.append(str(tag.id))
+        similar_articles = Article.objects.published().filter(tags__in=article_tag_ids).exclude(pk=article.pk)
+        similar_articles = similar_articles.annotate(same_tags=Count('tags')).order_by('-same_tags', '-publish')[:4]
+        serializer = ArticleSerializer(similar_articles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
