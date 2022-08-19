@@ -3,6 +3,8 @@ from django.http import JsonResponse, Http404
 from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from taggit.serializers import (TagListSerializerField,
+                                TaggitSerializer)
 
 from .models import Article, Comment
 from .serializers import ArticleSerializer, CommentSerializer, BasicCommentSerializer
@@ -74,14 +76,15 @@ class CreateComment(generics.CreateAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class Search(generics.CreateAPIView):
+class Search(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
-        articles = Article.objects.annotate(search=SearchVector('title', 'body'),).filter(search=request.data['search'])
+        articles = Article.objects.published().annotate(search=SearchVector('title', 'body'), ).filter(
+            search=request.data['search'])
         serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class SimilarPostsByTags(APIView):
+class SimilarPostsByTags(generics.GenericAPIView):
     def get(self, request, pk, *args, **kwargs):
         article = get_object_or_404(Article, status='published', pk=pk)
         article_tag_ids = []
@@ -90,4 +93,21 @@ class SimilarPostsByTags(APIView):
         similar_articles = Article.objects.published().filter(tags__in=article_tag_ids).exclude(pk=article.pk)
         similar_articles = similar_articles.annotate(same_tags=Count('tags')).order_by('-same_tags', '-publish')[:4]
         serializer = ArticleSerializer(similar_articles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TagsList(generics.GenericAPIView):
+    def get(self, request):
+        tags = Article.tags.all()
+        tags_name = []
+        for tag in tags:
+            tags_name.append({'id': str(tag.id), 'name': str(tag.name)})
+        print(tags_name)
+        return Response(tags_name, status.HTTP_200_OK)
+
+
+class Tag(generics.GenericAPIView):
+    def get(self, request, tag):
+        articles = Article.objects.published().filter(tags=tag).all()
+        serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

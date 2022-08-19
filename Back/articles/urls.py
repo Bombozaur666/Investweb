@@ -16,5 +16,7 @@ urlpatterns = [
     path('<int:pk>/unpublish/', UnpublishArticle.as_view()),
     path('<int:pk>/deactivate/<int:commpk>/', DeactivateComment.as_view()),
     path('search/', Search.as_view()),
+    path('tags/', TagsList.as_view()),
+    path('tags/<str:tag>/', Tag.as_view()),
     path('similarposts/<int:pk>/', SimilarPostsByTags.as_view()),
 ]
