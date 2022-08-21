@@ -98,7 +98,7 @@ class Comment(models.Model):
     active = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ('created',)
+        ordering = ('created', 'article')
 
     def __str__(self):
         return 'Comment added by {} for post {}.'.format(self.user, self.article)
