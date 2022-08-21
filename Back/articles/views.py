@@ -76,7 +76,6 @@ class CreateComment(generics.CreateAPIView):
 
 
 class Search(MultipleFieldLookupMixin, generics.ListAPIView):
-    serializer_class = ArticleSerializer
     lookup_fields = ['language', 'type']
 
     def get_queryset(self):
