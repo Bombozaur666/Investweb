@@ -43,23 +43,17 @@ class ArticleDetail(generics.RetrieveAPIView):
 
 class UnpublishArticle(generics.GenericAPIView):
     def post(self, request, pk):
-        try:
-            article = get_object_or_404(Article, pk=pk)
-            article.status = 'draft'
-            article.save()
-        except Article.DoesNotExist:
-            raise Http404
+        article = get_object_or_404(Article, pk=pk)
+        article.status = 'draft'
+        article.save()
         return Response(status=status.HTTP_200_OK)
 
 
 class DeactivateComment(generics.GenericAPIView):
     def get(self, request, pk, commpk):
-        try:
-            comm = get_object_or_404(Comment, pk=commpk)
-            comm.active = False
-            comm.save()
-        except Comment.DoesNotExist:
-            raise Http404
+        comm = get_object_or_404(Comment, pk=commpk)
+        comm.active = False
+        comm.save()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -85,8 +79,6 @@ class Search(MultipleFieldLookupMixin, generics.ListAPIView):
         for field in self.lookup_fields:
             if self.request.query_params[field]:
                 filter[field] = self.request.query_params[field]
-            else:
-                pass
         queryset = get_list_or_404(queryset, **filter)
         return queryset
 
