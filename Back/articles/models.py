@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.models import User
 
@@ -77,7 +78,7 @@ class Article(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return '/articles/basicarticle/{}/'.format(self.id)
+        return reverse('articles:article', kwargs={'pk': self.pk})
 
 
 class Comment(models.Model):
@@ -101,7 +102,4 @@ class Comment(models.Model):
         ordering = ('created', 'article')
 
     def __str__(self):
-        return 'Comment added by {} for post {}.'.format(self.user, self.article)
-
-    """def _tags(self):
-        return [t.name for t in self.tags.all()]"""
+        return f'Comment added by {self.user} for post {self.article}'
