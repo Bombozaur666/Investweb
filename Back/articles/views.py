@@ -34,7 +34,7 @@ class ArticleCreate(generics.CreateAPIView):
 class ArticleDetail(generics.RetrieveAPIView):
     def retrieve(self, request, pk):
         article = get_object_or_404(Article, status='published', pk=pk)
-        article_serializer = ArticleSerializer(article, many=True)
+        article_serializer = ArticleSerializer(article)
         comments = Comment.objects.filter(article_id=pk, active=True)
         comments_serializer = CommentSerializer(comments, many=True)
         return Response({'article': article_serializer.data,
@@ -61,9 +61,8 @@ class CreateComment(generics.CreateAPIView):
     def create(self, request, pk):
         serializer = BasicCommentSerializer(data=request.data)
         if serializer.is_valid():
-            comm = Comment(article_id=pk, body=serializer.validated_data['body'],
-                           user=serializer.validated_data['user'])
-            comm.save()
+            serializer.validated_data['article_id'] = pk
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
