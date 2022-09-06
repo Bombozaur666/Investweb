@@ -1,5 +1,4 @@
 from django.db.models import Count
-from django.http import JsonResponse, Http404
 from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework.response import Response
 
